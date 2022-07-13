@@ -1,81 +1,70 @@
-import type { NextPage } from "next";
+import type { GetStaticProps, NextPage } from "next";
 import Head from "next/head";
 import { trpc } from "../utils/trpc";
-import MustdoItems from "../components/MustdoItems";
+import MustdoList from "../components/MustdoList";
 import { Item } from "../components/Interfaces";
-import {useState} from "react";
+import { useState, useEffect } from "react";
 import AddMustdo from "../components/AddMustdo";
-import { v4 as uuidv4 } from 'uuid';
+import { QueryClient } from "react-query";
+// @ts-ignore
+import { v4 as uuidv4 } from "uuid";
+
 const Home: NextPage = () => {
-  const data: Array<Item> = [
-    {
-      id: "1",
-      title: "TASK 1",
-      priority: 1,
-      description: "",
-      status: false,
-    },
-    {
-      id: "2",
-      title: "TASK 2",
-      priority: 2,
-      description: "",
-      status: false,
-    },
-    {
-      id: "3",
-      title: "TASK 3",
-      priority: 3,
-      description: "",
-      status: false,
-    },
-    {
-      id: "4",
-      title: "TASK 4",
-      priority: 4,
-      description: "",
-      status: false,
-    },
-    {
-      id: "5",
-      title: "TASK 5",
-      priority: 5,
-      description: "",
-      status: false,
-    },
-  ];
+  const utils = trpc.useContext();
+  let data = trpc.useQuery(["example.getAll"]);
+  let deleteMustDo = trpc.useMutation("example.delete");
+  let addMustDo = trpc.useMutation("example.add");
+  let updateMustDo = trpc.useMutation("example.update");
+  // let complete = trpc.useMutation("example.complete")
+  // let add = trpc.useMutation("example.add")
 
+  let queryItems = data.data ? data.data : [];
 
-  const [items, setItems] = useState<Array<Item>>(data);
+  const [items, setItems] = useState<Array<Item>>(queryItems);
 
+  useEffect(() => {
+    if (data.status && data.data) {
+      setItems(data.data);
+    }
+  }, [data]);
 
   const deleteItem = (id: string) => {
-    setItems(items.filter((item:Item) => item.id !== id));
-    console.log(id, items.filter((item:Item) => item.id !== id))
-  }
-
-  const completeItem = (id: string) => {
-    setItems(items.map((item:Item) => {
-      if (item.id === id) {
-        item.status = !item.status;
+    deleteMustDo.mutate(
+      { id },
+      {
+        onSuccess: () => {
+          utils.invalidateQueries(["example.getAll"]);
+        },
       }
-      return item;
-    }
-    ));
-  }
+    );
+  };
+
+  const updateItem = (item: Item) => {
+    updateMustDo.mutate(item,{
+        onSuccess: () => {
+          utils.invalidateQueries(["example.getAll"]);
+        },
+      }
+    );
+  };
 
   // add new item
   const addItem = (item: Item) => {
-    setItems([...items, {...item, id: uuidv4()}]);
-  }
+    if (item) {
+      let currentUser = "cl5fwr5670052j7yccf34qwxw";
+      item.userId = currentUser;
+      item.description = "";
+      item.priority = -1;
 
+      console.log(item);
 
-
-
-
-
-
-
+      addMustDo.mutate(item, {
+        onSuccess: () => {
+          utils.invalidateQueries(["example.getAll"]);
+        },
+      });
+    }
+  };
 
 
   return (
@@ -88,13 +77,17 @@ const Home: NextPage = () => {
 
       <div className="w-screen min-h-screen flex flex-col justify-center items-center p-4 overflow-y-scroll">
         {/* create three columns with list of todo items */}
-          <div className="flex flex-col justify-center items-center w-6/12">
-            <h1 className="text-2xl font-bold mb-5">Todo</h1>
-            <ul className="w-full ">
-              {/* list of todo items */}
-              <MustdoItems items={items} deleteItem={deleteItem}completeItem={completeItem} />
-              <AddMustdo addItem={addItem} />
-            </ul>
+        <div className="flex flex-col justify-center items-center w-6/12">
+          <h1 className="text-2xl font-bold mb-5">Todo</h1>
+          <ul className="w-full ">
+            {/* list of todo items */}
+            <MustdoList
+              items={items}
+              deleteItem={deleteItem}
+              updateItem={updateItem}
+            />
+            <AddMustdo addItem={addItem} />
+          </ul>
         </div>
         {/* end of three columns */}
       </div>

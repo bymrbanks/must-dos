@@ -7,8 +7,9 @@ function AddMustdo({ addItem }: AddMustDoProps) {
     title: "",
     priority: -1,
     description: "",
-    status: false,
-  }
+    completed: false,
+    userId: "",
+  };
   const [newItem, setNewItem] = useState<Item>(item);
 
   return (
@@ -23,8 +24,11 @@ function AddMustdo({ addItem }: AddMustDoProps) {
       />
       <button
         onClick={() => {
-          addItem(newItem);
-          setNewItem(item)
+          if (newItem.title != "" && newItem.title.length > 3){ 
+            console.log(newItem.title.length)
+            addItem(newItem);
+            setNewItem(item);
+          }
         }}
       >
         Add Item
