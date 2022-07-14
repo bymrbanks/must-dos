@@ -23,6 +23,6 @@ export interface MustDoItemProps {
     updateItem: (item: Item) => void;
 }
 
-export interface AddMustDoProps {  
-addItem: (item: Item) => void;
+export interface AddMustDoProps {
+    addItem: (item: Item) => void;
 }
