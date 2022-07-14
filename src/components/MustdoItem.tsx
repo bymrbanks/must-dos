@@ -1,12 +1,14 @@
-import React from "react";
+import React, { useState } from "react";
 import { Item, MustDoItemProps } from "./Interfaces";
 
 function MustDoItem({ item, deleteItem, updateItem }: MustDoItemProps) {
-  
+  const [title, setTitle] = useState<string>(item.title);
+
   const toggleComplete = (item: Item) => {
     item.completed = !item.completed;
     updateItem(item);
   };
+
   const changePriority = (item: Item) => {
     item.priority = item.priority + 1;
     updateItem(item);
@@ -35,13 +37,17 @@ function MustDoItem({ item, deleteItem, updateItem }: MustDoItemProps) {
       <input
         type="text "
         onChange={(e) => {
-          changeTitle(e.target.value);
+          setTitle(e.target.value);
+          console.log(e.target.value, title);
+        }}
+        onBlur={(e) => {
+          changeTitle(title);
         }}
         className={
           "text-md mr-4 font-bold p-2 px-3 w-full outline-none" +
           (item.completed ? " line-through" : "")
         }
-        value={item.title}
+        value={title}
       />
       <input
         className="hidden"
@@ -66,7 +72,10 @@ function MustDoItem({ item, deleteItem, updateItem }: MustDoItemProps) {
         onClick={() => {
           deleteItem(item.id);
         }}
-      className="ml-5 text-sm p-2 px-3 text-white bg-red-400 rounded">X</button>
+        className="ml-5 text-sm p-2 px-3 text-white bg-red-400 rounded"
+      >
+        X
+      </button>
     </li>
   );
 }
