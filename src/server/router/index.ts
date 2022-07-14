@@ -5,9 +5,10 @@ import superjson from "superjson";
 import { mustdoRouter } from "./mustdo";
 import { authRouter } from "./auth";
 
+
 export const appRouter = createRouter()
   .transformer(superjson)
-  .merge("example.", mustdoRouter)
+  .merge("mustdo.", mustdoRouter)
   .merge("auth.", authRouter);
 
 // export type definition of API
