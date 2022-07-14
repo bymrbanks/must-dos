@@ -1,18 +1,15 @@
 import { createRouter } from "./context";
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 
 export const mustdoRouter = createRouter()
-  .query("hello", {
-    input: z
-      .object({
-        text: z.string().nullish(),
-      })
-      .nullish(),
-    resolve({ input }) {
-      return {
-        greeting: `Hello ${input?.text ?? "world ???"}`,
-      };
-    },
+  .middleware(async ({ ctx, next }) => {
+    // Any queries or mutations after this middleware will
+    // raise an error unless there is a current session
+    if (!ctx.session) {
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+    return next();
   })
   .mutation("delete", {
     input: z
@@ -51,7 +48,7 @@ export const mustdoRouter = createRouter()
             },
           },
         }
-    })
+      })
     },
   })
   .mutation("update", {
@@ -71,7 +68,7 @@ export const mustdoRouter = createRouter()
           id: input.id,
         },
         data: input
-    })
+      })
     },
   })
   .query("getAll", {

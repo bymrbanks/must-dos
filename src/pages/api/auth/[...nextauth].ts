@@ -25,11 +25,31 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials, _req) {
-        const user = { id: 1, name: credentials?.name ?? "J Smith" };
+        const user = { id: 1, name: credentials?.name ?? "mrbanks" };
         return user;
       },
     }),
   ],
+  // Configure other options
+  callbacks: {
+    jwt: async ({token, user}) => {
+      if(user){
+        token.id = user.id;
+      }
+      return token
+    },
+    session: async ({session, token,user}) => {
+      if(user){
+        session.id = user.id;
+      }
+      return session
+    }
+  },
+  secret: process.env.NEXTAUTH_SECRET,
+  jwt: {
+    secret: process.env.JWT_SECRET
+  },
+
 };
 
 export default NextAuth(authOptions);

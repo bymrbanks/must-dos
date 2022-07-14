@@ -5,19 +5,16 @@ import MustdoList from "../components/MustdoList";
 import { Item } from "../components/Interfaces";
 import { useState, useEffect } from "react";
 import AddMustdo from "../components/AddMustdo";
-import { QueryClient } from "react-query";
-// @ts-ignore
-import { v4 as uuidv4 } from "uuid";
+import { useSession } from "next-auth/react";
 
 const Home: NextPage = () => {
-  const utils = trpc.useContext();
-  let data = trpc.useQuery(["example.getAll"]);
-  let deleteMustDo = trpc.useMutation("example.delete");
-  let addMustDo = trpc.useMutation("example.add");
-  let updateMustDo = trpc.useMutation("example.update");
-  // let complete = trpc.useMutation("example.complete")
-  // let add = trpc.useMutation("example.add")
+  const { data: session } = useSession();
 
+  const utils = trpc.useContext();
+  let deleteMustDo = trpc.useMutation("mustdo.delete");
+  let data = trpc.useQuery(["mustdo.getAll"]);
+  let addMustDo = trpc.useMutation("mustdo.add");
+  let updateMustDo = trpc.useMutation("mustdo.update");
   let queryItems = data.data ? data.data : [];
 
   const [items, setItems] = useState<Array<Item>>(queryItems);
@@ -33,39 +30,35 @@ const Home: NextPage = () => {
       { id },
       {
         onSuccess: () => {
-          utils.invalidateQueries(["example.getAll"]);
+          utils.invalidateQueries(["mustdo.getAll"]);
         },
       }
     );
   };
 
   const updateItem = (item: Item) => {
-    updateMustDo.mutate(item,{
-        onSuccess: () => {
-          utils.invalidateQueries(["example.getAll"]);
-        },
-      }
-    );
+    updateMustDo.mutate(item, {
+      onSuccess: () => {
+        utils.invalidateQueries(["mustdo.getAll"]);
+      },
+    });
   };
 
   // add new item
   const addItem = (item: Item) => {
-    if (item) {
-      let currentUser = "cl5fwr5670052j7yccf34qwxw";
-      item.userId = currentUser;
+    if (item && session) {
+      let currentUser = session.id;
+      item.userId = currentUser as string;
       item.description = "";
       item.priority = -1;
 
-      console.log(item);
-
       addMustDo.mutate(item, {
         onSuccess: () => {
-          utils.invalidateQueries(["example.getAll"]);
+          utils.invalidateQueries(["mustdo.getAll"]);
         },
       });
     }
   };
-
 
   return (
     <>

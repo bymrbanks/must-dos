@@ -38,7 +38,7 @@ function MustDoItem({ item, deleteItem, updateItem }: MustDoItemProps) {
           changeTitle(e.target.value);
         }}
         className={
-          "text-sm mr-4 font-bold p-2 px-3" +
+          "text-md mr-4 font-bold p-2 px-3 w-full outline-none" +
           (item.completed ? " line-through" : "")
         }
         value={item.title}
