@@ -15,13 +15,14 @@ const Home: NextPage = () => {
   let data = trpc.useQuery(["mustdo.getAll"]);
   let addMustDo = trpc.useMutation("mustdo.add");
   let updateMustDo = trpc.useMutation("mustdo.update");
-  let queryItems = data.data ? data.data : [];
+  let mustDolist = data.data as Item[];
 
-  const [items, setItems] = useState<Array<Item>>(queryItems);
+  const [items, setItems] = useState<Array<Item>>(mustDolist);
 
   useEffect(() => {
-    if (data.status && data.data) {
-      setItems(data.data);
+    if (data.status === "success" && data.data) {
+      console.log(data.data,data.status);
+      setItems(mustDolist);
     }
   }, [data]);
 

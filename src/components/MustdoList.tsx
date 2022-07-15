@@ -5,7 +5,7 @@ import MustdoItem from "./MustdoItem";
 
 function MustdoList({ items, deleteItem, updateItem }: MustDoListProps) {
 
-  const listItems = items.map((item) => {
+  const listItems = items?.map((item) => {
     return (
       <MustdoItem
         key={item.id}

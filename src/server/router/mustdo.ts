@@ -73,19 +73,20 @@ export const mustdoRouter = createRouter()
   })
   .query("getAll", {
     async resolve({ ctx }) {
-
-
+      console.log(ctx.session, "test")
       if (ctx.session) {
-      return await ctx.prisma.mustDo.findMany(
-        {
-          where: {
-            user: {
-              id: ctx.session.id as string,
+        let mustdos = await ctx.prisma.mustDo.findMany(
+          {
+            where: {
+              user: {
+                id: ctx.session.id as string,
+              },
             },
-          },
-        }
-      );
-      }else{
+          }
+        );
+        console.log(mustdos, "mustdos")
+        return mustdos;
+      } else {
         return [];
       }
     },
